@@ -28,6 +28,10 @@ app.config['SECRET_KEY'] = 'hardtoguessstring'
 ###### FORMS #######
 ####################
 
+class AlbumEntryForm(FlaskForm):
+    name = StringField('Enter the name of an album:', validators=[Required()])
+    rating = RadioField('How much do you like this album? (1 low, 3 high)', choices=[('1','choice1'),('2','choice2'), ('3', "choice3")], validators=[Required()])
+    submit = SubmitField("Submit")
 
 
 
@@ -81,20 +85,19 @@ def specificsong(artist_name):
 # A submit button
 # 2 more routes that should be in a template format (later in part 3) /album_entry and /album_result
 
-class MyForm(AlbumEntryForm):
-    name = StringField('Enter the name of an album:', validators=[Required()])
-    rating = RadioField('How much do you like this album? (1 low, 3 high)', validators=[Required()])
-    submit = SubmitField("Submit")
-
-@app.route('/album_entry')
+@app.route('/album_entry', methods = ['POST', 'GET'])
 def albumentry():
-    form = MyForm()
-    return '<h1>TODO<h1>'
+    form = AlbumEntryForm()
+    return render_template("album_entry.html", form=form)
 
-@app.route('/album_result')
+@app.route('/album_result', methods = ['POST', 'GET'])
 def albumresult():
-    form = MyForm()
-    return '<h1>TODO<h1'
+    form = AlbumEntryForm(request.form)
+    if request.method == 'POST' and form.validate_on_submit():
+        name = form.name.data
+        rating = form.rating.data
+        return render_template("album_data.html", name=name, rating=rating)
+    return """<h1>No data given.</h1><a href="/album_entry"><button>Click Here.</button></a>"""
 
 if __name__ == '__main__':
     app.run(use_reloader=True,debug=True)
