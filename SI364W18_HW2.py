@@ -11,10 +11,11 @@
 #############################
 ##### IMPORT STATEMENTS #####
 #############################
-from flask import Flask, request, render_template, url_for
+from flask import Flask, request, render_template, url_for, redirect
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, RadioField, ValidationError
 from wtforms.validators import Required
+import requests, json
 
 #####################
 ##### APP SETUP #####
@@ -43,6 +44,35 @@ def hello_world():
 def hello_user(name):
     return '<h1>Hello {0}<h1>'.format(name)
 
+#Part 1
+# `http://localhost:5000/artistform` -> `artistform.html`
+# `http://localhost:5000/artistinfo` -> `artist_info.html`
+# `http://localhost:5000/artistlinks` -> `artist_links.html`
+# `http://localhost:5000/specific/song/<artist_name>` -> `specific_artist.html`
+@app.route('/artistform', methods = ['POST', 'GET'])
+def artistform():
+    if request.args.get("Submit") == "None":
+        return redirect(url_for('artistinfo', result=request.args.get("Submit")))
+    return render_template("artistform.html")
+
+@app.route('/artistinfo', methods = ['GET'])
+def artistinfo():
+    if request.args.get("artist") is not None and request.args.get("artist") != "":
+        artist = request.args.get("artist")
+        itunesAPI = "https://itunes.apple.com/search?term=" + artist + "&entity=musicTrack"
+        response = requests.get(itunesAPI)
+        return render_template("artist_info.html", objects = response.json()["results"])
+    return """<h1>No Artist Given.</h1><a href="/artistform"><button>Click Here.</button></a>"""
+
+@app.route('/artistlinks')
+def artistlinks():
+    return render_template("artist_links.html")
+
+@app.route('/specific/song/<artist_name>')
+def specificsong(artist_name):
+    itunesAPI = "https://itunes.apple.com/search?term=" + artist_name + "&entity=musicTrack"
+    response = requests.get(itunesAPI)
+    return render_template("specific_artist.html", results = response.json()["results"])
 
 if __name__ == '__main__':
     app.run(use_reloader=True,debug=True)
