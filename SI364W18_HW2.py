@@ -74,5 +74,27 @@ def specificsong(artist_name):
     response = requests.get(itunesAPI)
     return render_template("specific_artist.html", results = response.json()["results"])
 
+#Part 2
+#Form named AlbumEntryForm with fields:
+# Text entry for an album name, whose label should be `Enter the name of an album:`, which should be **required**
+# Radio buttons with options: 1,2,3 -- representing how much the user likes the album, whose label should be: `How much do you like this album? (1 low, 3 high)`, which should be **required**
+# A submit button
+# 2 more routes that should be in a template format (later in part 3) /album_entry and /album_result
+
+class MyForm(AlbumEntryForm):
+    name = StringField('Enter the name of an album:', validators=[Required()])
+    rating = RadioField('How much do you like this album? (1 low, 3 high)', validators=[Required()])
+    submit = SubmitField("Submit")
+
+@app.route('/album_entry')
+def albumentry():
+    form = MyForm()
+    return '<h1>TODO<h1>'
+
+@app.route('/album_result')
+def albumresult():
+    form = MyForm()
+    return '<h1>TODO<h1'
+
 if __name__ == '__main__':
     app.run(use_reloader=True,debug=True)
